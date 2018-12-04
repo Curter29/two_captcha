@@ -85,8 +85,8 @@ module TwoCaptcha
     #
     # @return [TwoCaptcha::Captcha] The solution of the given captcha.
     #
-    def decode_recaptcha_v2(options = {})
-      decode_recaptcha_v2!(options)
+    def decode_recaptcha(options = {})
+      decode_recaptcha!(options)
     rescue TwoCaptcha::Error => ex
       TwoCaptcha::Captcha.new
     end
@@ -100,16 +100,12 @@ module TwoCaptcha
     #
     # @return [TwoCaptcha::Captcha] The solution of the given captcha.
     #
-    def decode_recaptcha_v2!(options = {})
+    def decode_recaptcha!(options = {})
       started_at = Time.now
 
       fail(TwoCaptcha::GoogleKey) if options[:googlekey].empty?
 
-      upload_options = {
-        method: 'userrecaptcha',
-        googlekey: options[:googlekey],
-        pageurl: options[:pageurl]
-      }
+      upload_options = {method: 'userrecaptcha'}.merge(options)
       decoded_captcha = upload(upload_options)
 
       # pool untill the answer is ready
@@ -133,6 +129,7 @@ module TwoCaptcha
       args[:body]   = options[:raw64] if options[:raw64]
       args[:method] = options[:method] || 'base64'
       args.merge!(options)
+
       response = request('in', :multipart, args)
 
       unless response.match(/\AOK\|/)
@@ -246,7 +243,7 @@ module TwoCaptcha
         url: BASE_URL.gsub(':action', action),
         timeout: timeout,
         method: method,
-        payload: payload.merge(key: key, soft_id: 800)
+        payload: payload.merge(key: key, soft_id: 2511)
       )
       validate_response(res)
       res
