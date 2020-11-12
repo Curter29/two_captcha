@@ -3,9 +3,9 @@ module TwoCaptcha
   # https://2captcha.com/.
   #
   class Client
-    BASE_URL = 'http://2captcha.com/:action.php'
+    # BASE_URL = 'http://2captcha.com/:action.php'
 
-    attr_accessor :key, :timeout, :polling
+    attr_accessor :key, :timeout, :polling, :backend
 
     # Create a TwoCaptcha API client.
     #
@@ -21,6 +21,7 @@ module TwoCaptcha
       self.key    = key
       self.timeout  = options[:timeout] || 60
       self.polling  = options[:polling] || 5
+      self.backend  = (options[:backend] || 'http://2captcha.com') + '/:action.php'
     end
 
     # Decode the text from an image (i.e. solve a captcha).
@@ -240,7 +241,7 @@ module TwoCaptcha
     #
     def request(action, method = :get, payload = {})
       res = TwoCaptcha::HTTP.request(
-        url: BASE_URL.gsub(':action', action),
+        url: backend.gsub(':action', action),
         timeout: timeout,
         method: method,
         payload: payload.merge(key: key, soft_id: 2511)
